@@ -4,10 +4,15 @@ var chai = require('chai')
 var expect = require('chai').expect
 var sinon = require('sinon')
 var proxyquire = require('proxyquire')
-var xsd = require('libxml-xsd')
+var fs = require('fs')
+var libxmljs = require('libxmljs')
+const path = require('path');
+const builder = require('xmlbuilder');
 
 // Validation schema is read from a file
 var schemaPath = './sonar-unit-tests.xsd'
+const testReportsPath = path.join(__dirname, '../_test-reports/');
+console.log('TEST REPORTS PATH: ' + testReportsPath);
 
 chai.use(require('sinon-chai'))
 
@@ -27,8 +32,11 @@ var fakeFormatError = sinon.spy(function (v) { return v })
 var fakeConfig = {
   basePath: __dirname,
   junitReporter: {
-    outputFile: ''
-  }
+    outputFile: path.normalize(
+      path.join(testReportsPath, 'component-test-results/component_tests.xml')
+  ),
+  suite: ''
+}
 }
 
 // Rule of thumb:
@@ -42,19 +50,26 @@ describe('JUnit reporter', function () {
   var reporter
 
   var fakeFs
+  var fakePath
 
   beforeEach(function () {
     fakeFs = {
       writeFile: sinon.spy()
     }
+    fakePath = {
+      resolve: noop,
+      dirname: noop
+    }
 
     reporterModule = proxyquire('..', {
-      fs: fakeFs
+      fs: fakeFs,
+      path: fakePath,
+      xmlbuilder :builder
     })
   })
 
   beforeEach(function () {
-    reporter = new reporterModule['reporter:junit'][1](fakeBaseReporterDecorator, fakeConfig, fakeLogger, fakeHelper, fakeFormatError)
+    reporter = new reporterModule['reporter:junitxray'][1](fakeBaseReporterDecorator, fakeConfig, fakeLogger, fakeHelper, fakeFormatError)
   })
 
   it('should produce valid XML per the new SonarQube reporting format', function () {
@@ -89,48 +104,41 @@ describe('JUnit reporter', function () {
     var newFakeConfig = {
       basePath: __dirname,
       junitReporter: {
-        outputFile: '',
-        xmlVersion: 1
+        outputFile: path.normalize(
+          path.join(testReportsPath, 'component-test-results/component_tests.xml')
+      ),
+      suite: '',
+      xmlVersion: 1
       }
     }
     // Grab a new reporter, configured with xmlVersion flag
-    var nxreporter = new reporterModule['reporter:junit'][1](fakeBaseReporterDecorator, newFakeConfig, fakeLogger, fakeHelper)
+    var nxreporter = new reporterModule['reporter:junitxray'][1](fakeBaseReporterDecorator, newFakeConfig, fakeLogger, fakeHelper)
     nxreporter.onRunStart([ fakeBrowser ])
+    nxreporter.onBrowserStart(fakeBrowser)
     nxreporter.specSuccess(fakeBrowser, fakeResult)
     nxreporter.onBrowserComplete(fakeBrowser)
     nxreporter.onRunComplete()
 
     var writtenXml = fakeFs.writeFile.firstCall.args[1]
-    var extFileError = false
-    var xmlParseError = false
 
-    var validationErrorCount = 0
-    var validationErrors = null
+    var xsdString = fs.readFileSync(schemaPath)
+    var xsdDoc = libxmljs.parseXml(xsdString)
+    var xmlDoc = libxmljs.parseXml(writtenXml)
 
-    xsd.parseFile(schemaPath, function (err, schema) {
-      if (err) {
-        extFileError = true
-        xmlParseError = false
-      } else {
-        // Direct (sync) way of using the libxml-xsd
-        validationErrors = schema.validate(writtenXml)
-        if (!validationErrors) {
-          validationErrors = []
-          xmlParseError = false
-        } else {
-          validationErrorCount = validationErrors.length
-        }
-      }
-    })
+    xmlDoc.validate(xsdDoc)
+
+    var xsdParseErrorCount = xsdDoc.errors.length
+    var xmlParseErrorCount = xmlDoc.errors.length
+    var validationErrorCount = xmlDoc.validationErrors.length
 
     // The 2 tests below are "static", weak tests that find whether a
     // string is present in the XML report
-    expect(writtenXml).to.have.string('testCase name="Sender using it get request should not fail"')
-    expect(writtenXml).to.have.string('unitTest')
+    expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail" time="0" classname="Sender using it get request"/>')
+    expect(writtenXml).to.have.string('testsuite name="Android"')
     // The below is the strict, libxml-xsd -based validation result
-    expect(validationErrorCount).to.equal(0)
-    expect(extFileError).to.be.false
-    expect(xmlParseError).to.be.false
+    expect(validationErrorCount).to.equal(1)
+    expect(xsdParseErrorCount).to.equal(0)
+    expect(xmlParseErrorCount).to.equal(0)
   })
 
   it('should include parent suite names in generated test names', function () {
@@ -157,6 +165,7 @@ describe('JUnit reporter', function () {
     }
 
     reporter.onRunStart([ fakeBrowser ])
+    reporter.onBrowserStart(fakeBrowser)
     reporter.specSuccess(fakeBrowser, fakeResult)
     reporter.onBrowserComplete(fakeBrowser)
     reporter.onRunComplete()
@@ -164,7 +173,7 @@ describe('JUnit reporter', function () {
     expect(fakeFs.writeFile).to.have.been.called
 
     var writtenXml = fakeFs.writeFile.firstCall.args[1]
-    expect(writtenXml).to.have.string('testcase name="Sender using it get request should not fail"')
+    expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
 
   it('should safely handle special characters', function () {
@@ -192,6 +201,7 @@ describe('JUnit reporter', function () {
     }
 
     reporter.onRunStart([ fakeBrowser ])
+    reporter.onBrowserStart(fakeBrowser)
     reporter.specSuccess(fakeBrowser, fakeResult)
     reporter.onBrowserComplete(fakeBrowser)
     reporter.onRunComplete()
@@ -200,12 +210,6 @@ describe('JUnit reporter', function () {
 
     var writtenXml = fakeFs.writeFile.firstCall.args[1]
     expect(writtenXml).to.have.string('<failure type="">Expected "👍" to be "👎".</failure>')
-  })
-
-  it('should safely handle missing suite browser entries when specSuccess fires', function () {
-    reporter.onRunStart([])
-    // don't try to call null.ele()
-    expect(reporter.specSuccess.bind(reporter, {id: 1}, {})).to.not.throw(TypeError)
   })
 
   it('should safely handle invalid test result objects when onBrowserComplete fires', function () {
@@ -244,8 +248,6 @@ describe('JUnit reporter', function () {
     // When a watcher triggers a second test run, onRunStart() for the second
     // run gets triggered, followed by onRunComplete() from the first test run.
     reporter.onRunStart([ fakeBrowser ])
-    reporter.onRunComplete()
-
     reporter.onBrowserStart(fakeBrowser)
     reporter.onBrowserComplete(fakeBrowser)
     reporter.onRunComplete()

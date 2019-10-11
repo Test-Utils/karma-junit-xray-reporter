@@ -86,10 +86,10 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   };
 
   this.specSuccess = this.specFailure = function(browser, result) {
-    let tags = result.description.split(':', 3);
     let isXray = false,
-      xrayId = '';
-    if (tags.length > 1) {
+        tags = result.description && result.description.split(':', 3),
+        xrayId = '';
+    if (tags && (tags.length > 1)) {
       xrayId = tags[1];
 
       if (xrayId.indexOf('XRAY') > -1) {
@@ -99,7 +99,12 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
     // Component tests are being identified by xrayId tag (e.g XRAY-123) present in the desc
     // If the tag is not found then no processing needed
-    if (!isXray) return;
+    if (!isXray) {
+      const NOT_DEFINED = 'Not defined';
+      xrayId = NOT_DEFINED;
+      tags = ['', NOT_DEFINED, result.description]
+      // return;
+    }
 
     console.log('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
 

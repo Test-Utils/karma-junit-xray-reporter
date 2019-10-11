@@ -28,7 +28,6 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     var suite = suites[browser.id] = xml.ele('testsuite', {
       name: browser.name, 'package': pkgName, timestamp: timestamp, id: 0, hostname: os.hostname()
     });
-    // suite.ele('properties').ele('property', {name: 'browser.fullName', value: browser.fullName});
   };
 
   this.onRunStart = function (browsers) {
@@ -58,9 +57,6 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     suite.att('errors', result.disconnected || result.error ? 1 : 0);
     suite.att('failures', result.failed);
     suite.att('time', (result.netTime || 0) / 1000);
-
-    // suite.ele('system-out').dat(allMessages.join() + '\n');
-    suite.ele('system-err');
   };
 
   this.onRunComplete = function () {
@@ -86,11 +82,11 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   };
 
   this.specSuccess = this.specFailure = function(browser, result) {
-    let tags = result.description.split(':', 3);
     let isXray = false,
-      xrayId = '';
-    if (tags.length > 1) {
-      xrayId = tags[1];
+        tags = result.description && result.description.split(':', 3),
+        xrayId = '';
+    if (tags && (tags.length > 1)) {
+        xrayId = tags[1];
 
       if (xrayId.indexOf('XRAY') > -1) {
         isXray = true;
@@ -99,15 +95,21 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
     // Component tests are being identified by xrayId tag (e.g XRAY-123) present in the desc
     // If the tag is not found then no processing needed
-    if (!isXray) return;
+    if (!isXray) {
+      if (reporterConfig.xrayIdOnly === true) return;
+      const NOT_DEFINED = 'Not defined';
+      xrayId = NOT_DEFINED;
+      tags = ['', NOT_DEFINED, result.description]
+      // return;
+    }
 
     console.log('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
-
+    const describeValue = result.suite.join(' ').replace(/\./g, '_');
     var spec = suites[browser.id].ele('testcase', {
       requirements: xrayId,
       name: tags[2].trim(),
       time: ((result.time || 0) / 1000),
-      classname: result.suite.join(' ').replace(/\./g, '_')
+      classname: describeValue
     });
     
     if (!result.success) {

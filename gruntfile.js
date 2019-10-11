@@ -44,7 +44,7 @@ module.exports = function (grunt) {
       target: [
         'index.js',
         'gruntfile.js',
-        'test/*.js'
+        'tests/*.js'
       ]
     },
     simplemocha: {
@@ -54,7 +54,7 @@ module.exports = function (grunt) {
       },
       unit: {
         src: [
-          'test/*.spec.js'
+          'tests/*.spec.js'
         ]
       }
     }

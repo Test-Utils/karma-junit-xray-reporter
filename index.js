@@ -100,10 +100,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       const NOT_DEFINED = 'Not defined';
       xrayId = NOT_DEFINED;
       tags = ['', NOT_DEFINED, result.description]
-      // return;
     }
 
-    console.log('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
+    // console.log('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
     const describeValue = result.suite.join(' ').replace(/\./g, '_');
     var spec = suites[browser.id].ele('testcase', {
       requirements: xrayId,

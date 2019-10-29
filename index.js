@@ -31,6 +31,11 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   };
 
   this.onRunStart = function (browsers) {
+    console.log('HERE IS OUR ENV VAR');
+    console.log(process.env.buildVersion);
+    console.log('HERE IS THE ENV');
+    console.log(process.env);
+
     suites = Object.create(null);
     xml = builder.create('testsuites');
 

@@ -54,7 +54,8 @@ describe('JUnit reporter', function () {
 
   beforeEach(function () {
     fakeFs = {
-      writeFile: sinon.spy()
+      writeFile: sinon.spy(),
+      writeFileSync: sinon.spy()
     }
     fakePath = {
       resolve: noop,
@@ -175,6 +176,44 @@ describe('JUnit reporter', function () {
     var writtenXml = fakeFs.writeFile.firstCall.args[1]
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
+
+  
+  it ('should produce a valid metadata file', function () {
+    var fakeChromeBrowser = {
+      id: 'Chrome_78_0_39',
+      name: 'Chrome',
+      fullName: 'Android 78.0.39',
+      lastResult: {
+        error: false,
+        total: 1,
+        failed: 0,
+        netTime: 10 * 1000
+      }
+    }
+
+    var fakeResult = {
+      suite: [
+        'Sender',
+        'using it',
+        'get request'
+      ],
+      description: 'should not fail',
+      log: []
+    }
+
+    process.env.buildVersion = '1.27.0-fakerelease.8'
+    reporter.onRunStart([ fakeChromeBrowser ])
+    reporter.onBrowserStart(fakeChromeBrowser)
+    reporter.specSuccess(fakeChromeBrowser, fakeResult)
+    reporter.onBrowserComplete(fakeChromeBrowser)
+    reporter.onRunComplete()
+
+    expect(fakeFs.writeFileSync).to.have.been.called
+
+    var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
+    expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
+    expect(metadataFile.buildVCSNumber).to.have.string(process.env.buildVersion);
+  });
 
   it('should safely handle special characters', function () {
     var fakeBrowser = {

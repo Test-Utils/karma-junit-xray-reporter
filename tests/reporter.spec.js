@@ -177,8 +177,7 @@ describe('JUnit reporter', function () {
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
 
-  
-  it ('should produce a valid metadata file', function () {
+  describe ('metadata file', function () {
     var fakeChromeBrowser = {
       id: 'Chrome_78_0_39',
       name: 'Chrome',
@@ -201,18 +200,37 @@ describe('JUnit reporter', function () {
       log: []
     }
 
-    process.env.buildVersion = '1.27.0-fakerelease.8'
-    reporter.onRunStart([ fakeChromeBrowser ])
-    reporter.onBrowserStart(fakeChromeBrowser)
-    reporter.specSuccess(fakeChromeBrowser, fakeResult)
-    reporter.onBrowserComplete(fakeChromeBrowser)
-    reporter.onRunComplete()
+    it('when env.buildversion is defined, it should produce a valid metadata file with env.buildversion value as buildVCSNumber', function() {
+      process.env.buildVersion = '1.27.0-fakerelease.8'
+      reporter.onRunStart([ fakeChromeBrowser ])
+      reporter.onBrowserStart(fakeChromeBrowser)
+      reporter.specSuccess(fakeChromeBrowser, fakeResult)
+      reporter.onBrowserComplete(fakeChromeBrowser)
+      reporter.onRunComplete()
+  
+      expect(fakeFs.writeFileSync).to.have.been.called
+  
+      var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
+      expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
+      expect(metadataFile.buildVCSNumber).to.have.string(process.env.buildVersion);
+      process.env.buildVersion = undefined;
+    });
 
-    expect(fakeFs.writeFileSync).to.have.been.called
-
-    var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
-    expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
-    expect(metadataFile.buildVCSNumber).to.have.string(process.env.buildVersion);
+    it('when env.buildversion is not defined, it should produce a valid metadata file with buildVCSNumber empty', function() {
+      expect(process.env.buildVersion).to.have.string('undefined')
+      reporter.onRunStart([ fakeChromeBrowser ])
+      reporter.onBrowserStart(fakeChromeBrowser)
+      reporter.specSuccess(fakeChromeBrowser, fakeResult)
+      reporter.onBrowserComplete(fakeChromeBrowser)
+      reporter.onRunComplete()
+  
+      expect(fakeFs.writeFileSync).to.have.been.called
+  
+      var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
+      console.log('metadataFile: ' + JSON.stringify(metadataFile));
+      expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
+      expect(metadataFile.buildVCSNumber).to.be.empty;
+    });
   });
 
   it('should safely handle special characters', function () {

@@ -34,10 +34,14 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
-    console.log('buildVCSNumber: ' + process.env.buildVersion);
+    let buildVCSNumber = '';
+    if (process.env.buildVersion && process.env.buildVersion != 'undefined') {
+      buildVCSNumber = process.env.buildVersion; 
+    }
+    console.log('buildVCSNumber: ' + buildVCSNumber);
     let metadata = {
       summary: 'Karma UI Component Tests',
-      buildVCSNumber: process.env.buildVersion
+      buildVCSNumber: buildVCSNumber
     }
     fs.writeFileSync(metadataFile, metadata, (err) => {
       if (err) {

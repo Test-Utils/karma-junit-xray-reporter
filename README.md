@@ -18,6 +18,17 @@ To update to the latest version
 npm update karma-junit-xray-reporter
 ```
 
+## Run Tests
+To run tests
+```bash
+npm test
+```
+
+If you want to skip eslinter and directly run just tests
+```bash
+mocha tests/reporter.spec.js
+```
+
 ## Configuration
 
 ```js

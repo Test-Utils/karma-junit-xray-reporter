@@ -10,6 +10,8 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   var pkgName = reporterConfig.suite || '';
   var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
       || 'test-results.xml'));
+  let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
+    || 'metadata.json'));  
 
   var xml;
   var suites;
@@ -31,11 +33,22 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   };
 
   this.onRunStart = function (browsers) {
+    // Create metadata file and write it on the disk
+    console.log('buildVCSNumber: ' + process.env.buildVersion);
+    let metadata = {
+      summary: 'Karma UI Component Tests',
+      buildVCSNumber: process.env.buildVersion
+    }
+    fs.writeFileSync(metadataFile, metadata, (err) => {
+      if (err) {
+        console.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
+        throw err;
+      }
+      console.log('Written metadataFile: ' + metadataFile);
+    });
+    // Creating testsuites for output junit xml file
     suites = Object.create(null);
     xml = builder.create('testsuites');
-
-    // TODO(vojta): remove once we don't care about Karma 0.10
-    // browsers.forEach(initliazeXmlForBrowser);
   };
 
   this.onBrowserStart = function (browser) {
@@ -67,10 +80,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       fs.writeFile(outputFile, xmlToOutput.end({pretty: true}), function(err) {
         if (err) {
           log.warn('Cannot write JUnit xml\n\t' + err.message);
-    } else {
+        } else {
           log.debug('JUnit results written to "%s".', outputFile);
-        }
-
+        }   
         if (!--pendingFileWritings) {
           fileWritingFinished();
         }

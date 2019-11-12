@@ -10,7 +10,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   var pkgName = reporterConfig.suite || '';
   var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
       || 'test-results.xml'));
-  let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
+  let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.metadataFile
     || 'metadata.json'));  
 
   var xml;
@@ -38,17 +38,17 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     if (process.env.buildVersion && process.env.buildVersion != 'undefined') {
       buildVCSNumber = process.env.buildVersion; 
     }
-    console.log('buildVCSNumber: ' + buildVCSNumber);
+    log.debug('buildVCSNumber: ' + buildVCSNumber);
     let metadata = {
       summary: 'Karma UI Component Tests',
       buildVCSNumber: buildVCSNumber
     }
-    fs.writeFileSync(metadataFile, metadata, (err) => {
+    fs.writeFileSync(metadataFile, JSON.stringify(metadata), (err) => {
       if (err) {
-        console.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
+        log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
         throw err;
       }
-      console.log('Written metadataFile: ' + metadataFile);
+      log.info('Written metadataFile: ' + metadataFile);
     });
     // Creating testsuites for output junit xml file
     suites = Object.create(null);

@@ -38,7 +38,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
     log.debug('START: CHECKING TEAMCITY VAR');
     log.debug('JSON.stringify(this): \n' + JSON.stringify(this));
-    log.debug('JSON.stringify(process.env): ' + JSON.stringify(process.env))
+    log.debug('JSON.stringify(process.env): ' + JSON.stringify(process.env));
     log.debug('END: CHECKING TEAMCITY VAR');
 
     if (process.env.buildVersion && process.env.buildVersion != 'undefined') {

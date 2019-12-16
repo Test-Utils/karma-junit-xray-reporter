@@ -35,6 +35,11 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
     let buildVCSNumber = '';
+
+    log.debug('START: CHECKING TEAMCITY VAR');
+    log.debug('this.cfSpace: ' + this.cfSpace);
+    log.debug('END: CHECKING TEAMCITY VAR');
+
     if (process.env.buildVersion && process.env.buildVersion != 'undefined') {
       buildVCSNumber = process.env.buildVersion; 
     }

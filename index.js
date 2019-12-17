@@ -51,12 +51,12 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter,
     }
     log.debug('envProperties: \n' + JSON.stringify(envProperties));
-    
+
     let metadata = {
       jiraProjectKey: jiraProjectKey,
       envProperties: envProperties
     }
-    fs.writeFileSync(metadataFile, JSON.stringify(metadata), (err) => {
+    fs.writeFile(metadataFile, JSON.stringify(metadata), (err) => {
       if (err) {
         log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
         throw err;
@@ -132,7 +132,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       // return;
     }
 
-    console.log('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
+    log.debug('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
     const describeValue = result.suite.join(' ').replace(/\./g, '_');
     var spec = suites[browser.id].ele('testcase', {
       requirements: xrayId,

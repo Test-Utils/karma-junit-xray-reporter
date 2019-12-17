@@ -37,7 +37,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     let jiraProjectKey = '', 
         envProperties;
     if(process.env.npm_package_name && (process.env.npm_package_name === 'pr.co-ui-monorepo')) {
-      log.debug('process.env.npm_package_name: ' + process.env.npm_package_name);ß
+      log.debug('process.env.npm_package_name: ' + process.env.npm_package_name);
       jiraProjectKey = 'CARE';  
     }
 

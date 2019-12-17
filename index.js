@@ -34,21 +34,36 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
-    let buildVCSNumber = '';
-    if (process.env.buildVersion && process.env.buildVersion != 'undefined') {
-      buildVCSNumber = process.env.buildVersion; 
+    let jiraProjectKey = '', 
+        envProperties;
+    if(reporterConfig.jiraProjectKey) {
+      jiraProjectKey = reporterConfig.jiraProjectKey;  
+    } else if(process.env.jiraProjectKey) {
+      jiraProjectKey = process.env.jiraProjectKey 
     }
-    log.debug('buildVCSNumber: ' + buildVCSNumber);
+    log.debug('final jiraProjectKey: ' + jiraProjectKey);
+
+    envProperties = {
+      BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
+      buildVersion: process.env.buildVersion,
+      npm_config_globalconfig: process.env.npm_config_globalconfig,
+      npm_config_node_version: process.env.npm_config_node_version,
+      npm_package_name: process.env.npm_package_name, 
+      npm_package_dependencies_karma_webpack: process.env.npm_package_dependencies_karma_webpack,
+      npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter,
+    }
+    log.debug('envProperties: \n' + JSON.stringify(envProperties));
+
     let metadata = {
-      summary: 'Karma UI Component Tests',
-      buildVCSNumber: buildVCSNumber
+      jiraProjectKey: jiraProjectKey,
+      envProperties: envProperties
     }
-    fs.writeFileSync(metadataFile, JSON.stringify(metadata), (err) => {
+    fs.writeFile(metadataFile, JSON.stringify(metadata), (err) => {
       if (err) {
         log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
         throw err;
       }
-      log.info('Written metadataFile: ' + metadataFile);
+      log.info('Written metadataFile: "%s"', metadataFile);
     });
     // Creating testsuites for output junit xml file
     suites = Object.create(null);
@@ -85,7 +100,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
         if (err) {
           log.warn('Cannot write JUnit xml\n\t' + err.message);
         } else {
-          log.debug('JUnit results written to "%s".', outputFile);
+          log.debug('JUnit results written to "%s"', outputFile);
         }   
         if (!--pendingFileWritings) {
           fileWritingFinished();
@@ -119,7 +134,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       // return;
     }
 
-    console.log('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
+    log.debug('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
     const describeValue = result.suite.join(' ').replace(/\./g, '_');
     var spec = suites[browser.id].ele('testcase', {
       requirements: xrayId,

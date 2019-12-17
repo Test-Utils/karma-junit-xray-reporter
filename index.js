@@ -36,10 +36,12 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     // Create metadata file and write it on the disk
     let jiraProjectKey = '', 
         envProperties;
-    if(process.env.npm_package_name && (process.env.npm_package_name === 'pr.co-ui-monorepo')) {
-      log.debug('process.env.npm_package_name: ' + process.env.npm_package_name);
-      jiraProjectKey = 'CARE';  
+    if(reporterConfig.jiraProjectKey) {
+      jiraProjectKey = reporterConfig.jiraProjectKey;  
+    } else if(process.env.jiraProjectKey) {
+      jiraProjectKey = process.env.jiraProjectKey 
     }
+    log.debug('final jiraProjectKey: ' + jiraProjectKey);
 
     envProperties = {
       BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,

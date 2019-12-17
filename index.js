@@ -34,14 +34,27 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
-    let buildVCSNumber = '';
-    if (process.env.buildVersion && process.env.buildVersion != 'undefined') {
-      buildVCSNumber = process.env.buildVersion; 
+    let jiraProjectKey = '', 
+        envProperties;
+    if(process.env.npm_package_name === 'pr.co-ui-monorepo') {
+      log.debug('process.env.npm_package_name: ' + process.env.npm_package_name);
+      jiraProjectKey = 'CARE';  
     }
-    log.debug('buildVCSNumber: ' + buildVCSNumber);
+
+    envProperties = {
+      BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
+      buildVersion: process.env.buildVersion,
+      npm_config_globalconfig: process.env.npm_config_globalconfig,
+      npm_config_node_version: process.env.npm_config_node_version,
+      npm_package_name: process.env.npm_package_name, 
+      npm_package_dependencies_karma_webpack: process.env.npm_package_dependencies_karma_webpack,
+      npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter,
+    }
+    log.debug('envProperties: \n' + JSON.stringify(envProperties));
+    
     let metadata = {
-      summary: 'Karma UI Component Tests',
-      buildVCSNumber: buildVCSNumber
+      jiraProjectKey: jiraProjectKey,
+      envProperties: envProperties
     }
     fs.writeFileSync(metadataFile, JSON.stringify(metadata), (err) => {
       if (err) {

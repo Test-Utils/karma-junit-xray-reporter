@@ -61,7 +61,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
         log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
         throw err;
       }
-      log.info('Written metadataFile: ' + metadataFile);
+      log.info('Written metadataFile: "%s"', metadataFile);
     });
     // Creating testsuites for output junit xml file
     suites = Object.create(null);
@@ -98,7 +98,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
         if (err) {
           log.warn('Cannot write JUnit xml\n\t' + err.message);
         } else {
-          log.debug('JUnit results written to "%s".', outputFile);
+          log.debug('JUnit results written to "%s"', outputFile);
         }   
         if (!--pendingFileWritings) {
           fileWritingFinished();

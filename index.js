@@ -58,12 +58,15 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       jiraProjectKey: jiraProjectKey,
       envProperties: envProperties
     }
-    fs.writeFile(metadataFile, JSON.stringify(metadata), (err) => {
-      if (err) {
-        log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
-        throw err;
-      }
-      log.info('Written metadataFile: "%s"', metadataFile);
+    log.debug('creating dir if they dont exist for metadata file path: ' + metadata);
+    helper.mkdirIfNotExists(path.dirname(metadata), function() {
+      fs.writeFile(metadataFile, JSON.stringify(metadata), (err) => {
+        if (err) {
+          log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
+          throw err;
+        }
+        log.info('Written metadataFile: "%s"', metadataFile);
+      });
     });
     // Creating testsuites for output junit xml file
     suites = Object.create(null);

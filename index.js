@@ -59,7 +59,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       envProperties: envProperties
     }
     log.debug('creating dir if they dont exist for metadata file path: ' + metadata);
-    helper.mkdirIfNotExists(path.dirname(metadata), function() {
+    helper.mkdirIfNotExists(path.dirname(metadataFile), function() {
       fs.writeFile(metadataFile, JSON.stringify(metadata), (err) => {
         if (err) {
           log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);

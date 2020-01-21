@@ -25,12 +25,16 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
   var initliazeXmlForBrowser = function (browser) {
     var timestamp = (new Date()).toISOString().substr(0, 19)
+    suites[browser.id] = xml.ele('testsuite', {
+      name: browser.name, 'package': pkgName, timestamp: timestamp, id: 0, hostname: os.hostname()
+    })
   }
 
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
-    let jiraProjectKey = '',
-      envProperties
+    let jiraProjectKey = ''
+    let envProperties
+
     if (reporterConfig.jiraProjectKey) {
       jiraProjectKey = reporterConfig.jiraProjectKey
     } else if (process.env.jiraProjectKey) {
@@ -111,9 +115,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   }
 
   this.specSuccess = this.specFailure = function (browser, result) {
-    let isXray = false,
-      tags = result.description && result.description.split(':', 3),
-      xrayId = ''
+    let isXray = false
+    let tags = result.description && result.description.split(':', 3)
+    let xrayId = ''
     if (tags && (tags.length > 1)) {
       xrayId = tags[1]
 

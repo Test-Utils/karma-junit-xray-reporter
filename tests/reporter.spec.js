@@ -6,13 +6,13 @@ var sinon = require('sinon')
 var proxyquire = require('proxyquire')
 var fs = require('fs')
 var libxmljs = require('libxmljs')
-const path = require('path');
-const builder = require('xmlbuilder');
+const path = require('path')
+const builder = require('xmlbuilder')
 
 // Validation schema is read from a file
 var schemaPath = './sonar-unit-tests.xsd'
-const testReportsPath = path.join(__dirname, '../_test-reports/');
-console.log('TEST REPORTS PATH: ' + testReportsPath);
+const testReportsPath = path.join(__dirname, '../_test-reports/')
+console.log('TEST REPORTS PATH: ' + testReportsPath)
 
 chai.use(require('sinon-chai'))
 
@@ -35,8 +35,8 @@ var fakeConfig = {
     outputFile: path.normalize(
       path.join(testReportsPath, 'component-test-results/component_tests.xml')
   ),
-  suite: ''
-}
+    suite: ''
+  }
 }
 
 // Rule of thumb:
@@ -65,7 +65,7 @@ describe('JUnit reporter', function () {
     reporterModule = proxyquire('..', {
       fs: fakeFs,
       path: fakePath,
-      xmlbuilder :builder
+      xmlbuilder: builder
     })
   })
 
@@ -108,8 +108,8 @@ describe('JUnit reporter', function () {
         outputFile: path.normalize(
           path.join(testReportsPath, 'component-test-results/component_tests.xml')
       ),
-      suite: '',
-      xmlVersion: 1
+        suite: '',
+        xmlVersion: 1
       }
     }
     // Grab a new reporter, configured with xmlVersion flag
@@ -177,7 +177,7 @@ describe('JUnit reporter', function () {
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
 
-  describe ('metadata file', function () {
+  describe('metadata file', function () {
     var fakeChromeBrowser = {
       id: 'Chrome_78_0_39',
       name: 'Chrome',
@@ -200,38 +200,38 @@ describe('JUnit reporter', function () {
       log: []
     }
 
-    it('when env.buildversion is defined, it should produce a valid metadata file with env.buildversion value as buildVCSNumber', function() {
+    it('when env.buildversion is defined, it should produce a valid metadata file with env.buildversion value as buildVCSNumber', function () {
       process.env.buildVersion = '1.27.0-fakerelease.8'
       reporter.onRunStart([ fakeChromeBrowser ])
       reporter.onBrowserStart(fakeChromeBrowser)
       reporter.specSuccess(fakeChromeBrowser, fakeResult)
       reporter.onBrowserComplete(fakeChromeBrowser)
       reporter.onRunComplete()
-  
-      expect(fakeFs.writeFileSync).to.have.been.called
-  
-      var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
-      expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
-      expect(metadataFile.buildVCSNumber).to.have.string(process.env.buildVersion);
-      process.env.buildVersion = undefined;
-    });
 
-    it('when env.buildversion is not defined, it should produce a valid metadata file with buildVCSNumber empty', function() {
+      expect(fakeFs.writeFileSync).to.have.been.called
+
+      var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
+      expect(metadataFile.summary).to.have.string('Karma UI Component Tests')
+      expect(metadataFile.buildVCSNumber).to.have.string(process.env.buildVersion)
+      process.env.buildVersion = undefined
+    })
+
+    it('when env.buildversion is not defined, it should produce a valid metadata file with buildVCSNumber empty', function () {
       expect(process.env.buildVersion).to.have.string('undefined')
       reporter.onRunStart([ fakeChromeBrowser ])
       reporter.onBrowserStart(fakeChromeBrowser)
       reporter.specSuccess(fakeChromeBrowser, fakeResult)
       reporter.onBrowserComplete(fakeChromeBrowser)
       reporter.onRunComplete()
-  
+
       expect(fakeFs.writeFileSync).to.have.been.called
-  
+
       var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
-      console.log('metadataFile: ' + JSON.stringify(metadataFile));
-      expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
-      expect(metadataFile.buildVCSNumber).to.be.empty;
-    });
-  });
+      console.log('metadataFile: ' + JSON.stringify(metadataFile))
+      expect(metadataFile.summary).to.have.string('Karma UI Component Tests')
+      expect(metadataFile.buildVCSNumber).to.be.empty
+    })
+  })
 
   it('should safely handle special characters', function () {
     var fakeBrowser = {

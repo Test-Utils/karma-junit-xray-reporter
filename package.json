@@ -1,6 +1,6 @@
 {
   "name": "karma-junit-xray-reporter",
-  "version": "1.2.1",
+  "version": "1.2.2 ",
   "description": "A Karma plugin. Report results in junit xml format with XRay Id(if present)",
   "main": "index.js",
   "files": [

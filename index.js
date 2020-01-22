@@ -41,6 +41,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     } else if (process.env.jiraProjectKey) {
       jiraProjectKey = process.env.jiraProjectKey
     }
+    log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
     log.debug('final jiraProjectKey: ' + jiraProjectKey);
 
     envProperties = {
@@ -58,7 +59,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       jiraProjectKey: jiraProjectKey,
       envProperties: envProperties
     }
-    log.debug('creating dir if they dont exist for metadata file path: ' + metadata);
+    log.debug('creating dir if they dont exist for metadata file path: ' + metadataFile);
     helper.mkdirIfNotExists(path.dirname(metadataFile), function () {
       fs.writeFile(metadataFile, JSON.stringify(metadata), (err) => {
         if (err) {

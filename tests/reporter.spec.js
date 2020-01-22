@@ -22,7 +22,7 @@ console.log('TEST REPORTS PATH: ' + testReportsPath);
 
 chai.use(require('sinon-chai'))
 
-function noop () {}
+function noop() { }
 
 var fakeLogger = {
   create: () => { return fakeLogObject }
@@ -37,12 +37,13 @@ var fakeFormatError = sinon.spy(function (v) { return v })
 
 var fakeConfig = {
   basePath: __dirname,
-  junitReporter: {
+  junitXrayReporter: {
     outputFile: path.normalize(
       path.join(testReportsPath, 'component-test-results/component_tests.xml')
-  ),
-  suite: ''
-}
+    ),
+    suite: '',
+    jiraProjectKey: 'CARE'
+  }
 }
 
 // Rule of thumb:
@@ -71,7 +72,7 @@ describe('JUnit reporter', function () {
     reporterModule = proxyquire('..', {
       fs: fakeFs,
       path: fakePath,
-      xmlbuilder :builder
+      xmlbuilder: builder
     })
   })
 
@@ -113,14 +114,14 @@ describe('JUnit reporter', function () {
       junitReporter: {
         outputFile: path.normalize(
           path.join(testReportsPath, 'component-test-results/component_tests.xml')
-      ),
-      suite: '',
-      xmlVersion: 1
+        ),
+        suite: '',
+        xmlVersion: 1
       }
     }
     // Grab a new reporter, configured with xmlVersion flag
     var nxreporter = new reporterModule['reporter:junitxray'][1](fakeBaseReporterDecorator, newFakeConfig, fakeLogger, fakeHelper)
-    nxreporter.onRunStart([ fakeBrowser ])
+    nxreporter.onRunStart([fakeBrowser])
     nxreporter.onBrowserStart(fakeBrowser)
     nxreporter.specSuccess(fakeBrowser, fakeResult)
     nxreporter.onBrowserComplete(fakeBrowser)
@@ -171,7 +172,7 @@ describe('JUnit reporter', function () {
       log: []
     }
 
-    reporter.onRunStart([ fakeBrowser ])
+    reporter.onRunStart([fakeBrowser])
     reporter.onBrowserStart(fakeBrowser)
     reporter.specSuccess(fakeBrowser, fakeResult)
     reporter.onBrowserComplete(fakeBrowser)
@@ -183,7 +184,7 @@ describe('JUnit reporter', function () {
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
 
-  describe ('metadata file', function () {
+  describe('metadata file', function () {
     var fakeChromeBrowser = {
       id: 'Chrome_78_0_39',
       name: 'Chrome',
@@ -206,36 +207,37 @@ describe('JUnit reporter', function () {
       log: []
     }
 
-    it('when env.buildversion is defined, it should produce a valid metadata file with env.buildversion value as buildVCSNumber', function() {
+    it('when env.buildversion is defined, it should produce a valid metadata file with env.buildversion value as buildVCSNumber', function () {
       process.env.buildVersion = '1.27.0-fakerelease.8'
-      reporter.onRunStart([ fakeChromeBrowser ])
+      reporter.onRunStart([fakeChromeBrowser])
       reporter.onBrowserStart(fakeChromeBrowser)
       reporter.specSuccess(fakeChromeBrowser, fakeResult)
       reporter.onBrowserComplete(fakeChromeBrowser)
       reporter.onRunComplete()
-  
-      expect(fakeFs.writeFileSync).to.have.been.called
-  
-      var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
-      expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
-      expect(metadataFile.buildVCSNumber).to.have.string(process.env.buildVersion);
+
+      expect(fakeFs.writeFile).to.have.been.called
+
+      var metadata = JSON.parse(fakeFs.writeFile.firstCall.args[1]);
+      // debugger;
+      console.debug('metadata: ' + JSON.stringify(metadata));
+      expect(metadata.jiraProjectKey).to.have.string('CARE');
+      expect(metadata.envProperties.buildVersion).to.have.string(process.env.buildVersion);
       process.env.buildVersion = undefined;
     });
-
-    it('when env.buildversion is not defined, it should produce a valid metadata file with buildVCSNumber empty', function() {
+    
+    it('when env.buildversion is not defined, it should produce a valid metadata file with buildVCSNumber empty', function () {
       expect(process.env.buildVersion).to.have.string('undefined')
-      reporter.onRunStart([ fakeChromeBrowser ])
+      reporter.onRunStart([fakeChromeBrowser])
       reporter.onBrowserStart(fakeChromeBrowser)
       reporter.specSuccess(fakeChromeBrowser, fakeResult)
       reporter.onBrowserComplete(fakeChromeBrowser)
       reporter.onRunComplete()
-  
-      expect(fakeFs.writeFileSync).to.have.been.called
-  
-      var metadataFile = fakeFs.writeFileSync.firstCall.args[1]
-      console.log('metadataFile: ' + JSON.stringify(metadataFile));
-      expect(metadataFile.summary).to.have.string('Karma UI Component Tests');
-      expect(metadataFile.buildVCSNumber).to.be.empty;
+      
+      expect(fakeFs.writeFile).to.have.been.called
+      
+      var metadata = JSON.parse(fakeFs.writeFile.firstCall.args[1])
+      expect(metadata.jiraProjectKey).to.have.string('CARE');
+      expect(metadata.envProperties.buildVersion).to.have.string('undefined');
     });
   });
 
@@ -263,7 +265,7 @@ describe('JUnit reporter', function () {
       log: ['Expected "👍" to be "👎".']
     }
 
-    reporter.onRunStart([ fakeBrowser ])
+    reporter.onRunStart([fakeBrowser])
     reporter.onBrowserStart(fakeBrowser)
     reporter.specSuccess(fakeBrowser, fakeResult)
     reporter.onBrowserComplete(fakeBrowser)
@@ -286,7 +288,7 @@ describe('JUnit reporter', function () {
       }
     }
 
-    reporter.onRunStart([ badBrowserResult ])
+    reporter.onRunStart([badBrowserResult])
 
     // never pass a null value to XMLAttribute via xmlbuilder attr()
     expect(reporter.onBrowserComplete.bind(reporter, badBrowserResult)).not.to.throw(Error)
@@ -305,12 +307,12 @@ describe('JUnit reporter', function () {
       }
     }
 
-    reporter.onRunStart([ fakeBrowser ])
+    reporter.onRunStart([fakeBrowser])
     reporter.onBrowserStart(fakeBrowser)
 
     // When a watcher triggers a second test run, onRunStart() for the second
     // run gets triggered, followed by onRunComplete() from the first test run.
-    reporter.onRunStart([ fakeBrowser ])
+    reporter.onRunStart([fakeBrowser])
     reporter.onBrowserStart(fakeBrowser)
     reporter.onBrowserComplete(fakeBrowser)
     reporter.onRunComplete()

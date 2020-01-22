@@ -224,7 +224,7 @@ describe('JUnit reporter', function () {
       expect(metadata.envProperties.buildVersion).to.have.string(process.env.buildVersion);
       process.env.buildVersion = undefined;
     });
-    
+
     it('when env.buildversion is not defined, it should produce a valid metadata file with buildVCSNumber empty', function () {
       expect(process.env.buildVersion).to.have.string('undefined')
       reporter.onRunStart([fakeChromeBrowser])
@@ -232,9 +232,9 @@ describe('JUnit reporter', function () {
       reporter.specSuccess(fakeChromeBrowser, fakeResult)
       reporter.onBrowserComplete(fakeChromeBrowser)
       reporter.onRunComplete()
-      
+
       expect(fakeFs.writeFile).to.have.been.called
-      
+
       var metadata = JSON.parse(fakeFs.writeFile.firstCall.args[1])
       expect(metadata.jiraProjectKey).to.have.string('CARE');
       expect(metadata.envProperties.buildVersion).to.have.string('undefined');

@@ -3,15 +3,14 @@ var path = require('path');
 var fs = require('fs');
 var builder = require('xmlbuilder');
 
-
 var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper, formatError) {
   var log = logger.create('reporter.junitxray');
   var reporterConfig = config.junitXrayReporter || {};
   var pkgName = reporterConfig.suite || '';
-  var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
-    || 'test-results.xml'));
-  let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.metadataFile
-    || 'metadata.json'));
+  var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile ||
+     'test-results.xml'));
+  let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.metadataFile ||
+     'metadata.json'));
 
   var xml;
   var suites;
@@ -51,7 +50,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       npm_config_node_version: process.env.npm_config_node_version,
       npm_package_name: process.env.npm_package_name,
       npm_package_dependencies_karma_webpack: process.env.npm_package_dependencies_karma_webpack,
-      npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter,
+      npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter
     }
     log.debug('envProperties: \n' + JSON.stringify(envProperties));
 

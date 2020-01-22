@@ -42,8 +42,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     }
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
     log.debug('final jiraProjectKey: ' + jiraProjectKey);
+    log.debug('MUAHAHAHA');
     log.debug('process.env properties: ' + JSON.stringify(process.env));
-    
+
     envProperties = {
       BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
       buildVersion: process.env.buildVersion,

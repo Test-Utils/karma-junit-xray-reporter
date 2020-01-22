@@ -1,4 +1,7 @@
-on: push
+on: 
+  push:
+    branches:
+      - sonarqube-test
 name: Main Workflow
 jobs:
   sonarCloudTrigger:

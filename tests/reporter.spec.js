@@ -9,6 +9,12 @@ var libxmljs = require('libxmljs')
 const path = require('path');
 const builder = require('xmlbuilder');
 
+let fakeLogObject = {
+  debug: noop,
+  warn: noop,
+  info: noop,
+  error: noop
+}
 // Validation schema is read from a file
 var schemaPath = './sonar-unit-tests.xsd'
 const testReportsPath = path.join(__dirname, '../_test-reports/');
@@ -19,7 +25,7 @@ chai.use(require('sinon-chai'))
 function noop () {}
 
 var fakeLogger = {
-  create: noop
+  create: () => { return fakeLogObject }
 }
 
 var fakeHelper = {
@@ -120,7 +126,7 @@ describe('JUnit reporter', function () {
     nxreporter.onBrowserComplete(fakeBrowser)
     nxreporter.onRunComplete()
 
-    var writtenXml = fakeFs.writeFile.firstCall.args[1]
+    var writtenXml = fakeFs.writeFile.secondCall.args[1]
 
     var xsdString = fs.readFileSync(schemaPath)
     var xsdDoc = libxmljs.parseXml(xsdString)
@@ -173,7 +179,7 @@ describe('JUnit reporter', function () {
 
     expect(fakeFs.writeFile).to.have.been.called
 
-    var writtenXml = fakeFs.writeFile.firstCall.args[1]
+    var writtenXml = fakeFs.writeFile.secondCall.args[1]
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
 
@@ -265,7 +271,7 @@ describe('JUnit reporter', function () {
 
     expect(fakeFs.writeFile).to.have.been.called
 
-    var writtenXml = fakeFs.writeFile.firstCall.args[1]
+    var writtenXml = fakeFs.writeFile.secondCall.args[1]
     expect(writtenXml).to.have.string('<failure type="">Expected "👍" to be "👎".</failure>')
   })
 

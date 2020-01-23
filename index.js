@@ -33,19 +33,20 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
+    const TEAMCITY_BUILDCONF_NAME = 'TEAMCITY_BUILDCONF_NAME';
+    
     let jiraProjectKey = '',
-      envProperties;
+        envProperties;
     if (reporterConfig.jiraProjectKey) {
       jiraProjectKey = reporterConfig.jiraProjectKey;
     } else if (process.env.jiraProjectKey) {
       jiraProjectKey = process.env.jiraProjectKey
     }
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
-    log.debug('final jiraProjectKey: ' + jiraProjectKey);
-    log.debug('MUAHAHAHA');
-    log.debug('process.env properties: ' + JSON.stringify(process.env));
 
     envProperties = {
+      BUILD_NUMBER: process.env.buildVersion,
+      TEAMCITY_BUILDCONF_NAME: process.env[TEAMCITY_BUILDCONF_NAME],
       BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
       buildVersion: process.env.buildVersion,
       npm_config_globalconfig: process.env.npm_config_globalconfig,

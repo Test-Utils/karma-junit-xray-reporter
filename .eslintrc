@@ -1,6 +1,7 @@
 {
   "extends": "standard",
   "rules": {
+    "indent": off,
     "semi": off,
     "space-before-function-paren": off,
     "one-var": off

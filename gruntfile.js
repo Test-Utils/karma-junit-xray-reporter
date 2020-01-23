@@ -42,7 +42,7 @@ module.exports = function (grunt) {
     },
     eslint: {
       options: {
-        // fix: true //it is disabled because we want dev to see error and decide
+        fix: true // it is disabled because we want dev to see error and decide
       },
       target: [
         'index.js',

@@ -34,7 +34,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
     const TEAMCITY_BUILDCONF_NAME = 'TEAMCITY_BUILDCONF_NAME';
-    
+
     let jiraProjectKey = '',
         envProperties;
     if (reporterConfig.jiraProjectKey) {

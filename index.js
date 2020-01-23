@@ -3,54 +3,57 @@ var path = require('path');
 var fs = require('fs');
 var builder = require('xmlbuilder');
 
-
 var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper, formatError) {
   var log = logger.create('reporter.junitxray');
   var reporterConfig = config.junitXrayReporter || {};
   var pkgName = reporterConfig.suite || '';
-  var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
-      || 'test-results.xml'));
-  let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.metadataFile
-    || 'metadata.json'));  
+  var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile ||
+     'test-results.xml'));
+  let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.metadataFile ||
+     'metadata.json'));
 
   var xml;
   var suites;
   var pendingFileWritings = 0;
-  var fileWritingFinished = function() {};
+  var fileWritingFinished = function () { };
   var allMessages = [];
 
   baseReporterDecorator(this);
 
-  this.adapters = [function(msg) {
+  this.adapters = [function (msg) {
     allMessages.push(msg);
   }];
 
-  var initliazeXmlForBrowser = function(browser) {
+  var initliazeXmlForBrowser = function (browser) {
     var timestamp = (new Date()).toISOString().substr(0, 19);
-    var suite = suites[browser.id] = xml.ele('testsuite', {
+    suites[browser.id] = xml.ele('testsuite', {
       name: browser.name, 'package': pkgName, timestamp: timestamp, id: 0, hostname: os.hostname()
     });
   };
 
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
-    let jiraProjectKey = '', 
+    const TEAMCITY_BUILDCONF_NAME = 'TEAMCITY_BUILDCONF_NAME';
+
+    let jiraProjectKey = '',
         envProperties;
-    if(reporterConfig.jiraProjectKey) {
-      jiraProjectKey = reporterConfig.jiraProjectKey;  
-    } else if(process.env.jiraProjectKey) {
-      jiraProjectKey = process.env.jiraProjectKey 
+    if (reporterConfig.jiraProjectKey) {
+      jiraProjectKey = reporterConfig.jiraProjectKey;
+    } else if (process.env.jiraProjectKey) {
+      jiraProjectKey = process.env.jiraProjectKey
     }
-    log.debug('final jiraProjectKey: ' + jiraProjectKey);
+    log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
 
     envProperties = {
+      BUILD_NUMBER: process.env.buildVersion,
+      TEAMCITY_BUILDCONF_NAME: process.env[TEAMCITY_BUILDCONF_NAME],
       BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
       buildVersion: process.env.buildVersion,
       npm_config_globalconfig: process.env.npm_config_globalconfig,
       npm_config_node_version: process.env.npm_config_node_version,
-      npm_package_name: process.env.npm_package_name, 
+      npm_package_name: process.env.npm_package_name,
       npm_package_dependencies_karma_webpack: process.env.npm_package_dependencies_karma_webpack,
-      npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter,
+      npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter
     }
     log.debug('envProperties: \n' + JSON.stringify(envProperties));
 
@@ -58,8 +61,8 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       jiraProjectKey: jiraProjectKey,
       envProperties: envProperties
     }
-    log.debug('creating dir if they dont exist for metadata file path: ' + metadata);
-    helper.mkdirIfNotExists(path.dirname(metadataFile), function() {
+    log.debug('creating dir if they dont exist for metadata file path: ' + metadataFile);
+    helper.mkdirIfNotExists(path.dirname(metadataFile), function () {
       fs.writeFile(metadataFile, JSON.stringify(metadata), (err) => {
         if (err) {
           log.error('Unable to write metadataFile: ' + metadataFile + ' with data: ' + metadata);
@@ -98,13 +101,13 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     var xmlToOutput = xml;
 
     pendingFileWritings++;
-    helper.mkdirIfNotExists(path.dirname(outputFile), function() {
-      fs.writeFile(outputFile, xmlToOutput.end({pretty: true}), function(err) {
+    helper.mkdirIfNotExists(path.dirname(outputFile), function () {
+      fs.writeFile(outputFile, xmlToOutput.end({ pretty: true }), function (err) {
         if (err) {
           log.warn('Cannot write JUnit xml\n\t' + err.message);
         } else {
           log.debug('JUnit results written to "%s"', outputFile);
-        }   
+        }
         if (!--pendingFileWritings) {
           fileWritingFinished();
         }
@@ -115,12 +118,12 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     allMessages.length = 0;
   };
 
-  this.specSuccess = this.specFailure = function(browser, result) {
+  this.specSuccess = this.specFailure = function (browser, result) {
     let isXray = false,
-        tags = result.description && result.description.split(':', 3),
-        xrayId = '';
+      tags = result.description && result.description.split(':', 3),
+      xrayId = '';
     if (tags && (tags.length > 1)) {
-        xrayId = tags[1];
+      xrayId = tags[1];
 
       if (xrayId.indexOf('XRAY') > -1) {
         isXray = true;
@@ -145,7 +148,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       time: ((result.time || 0) / 1000),
       classname: describeValue
     });
-    
+
     if (!result.success) {
       result.log.forEach(function (err) {
         spec.ele('failure', { type: '' }, formatError(err));
@@ -159,7 +162,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       fileWritingFinished = done;
     } else {
       done();
-  }
+    }
   };
 };
 

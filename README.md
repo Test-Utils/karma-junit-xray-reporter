@@ -41,7 +41,7 @@ module.exports = function(config) {
     junitXrayReporter: {
       outputFile: undefined, // if included, results will be saved as $outputDir/$browserName/$outputFile
       suite: '', // suite will become the package name attribute in xml testsuite element
-      xrayIdOnly: true, //(default false) to process only the tests that have xrayId like :XRAY-123: in the tests name for e.g ':XRAY-123: test to validate params'
+      xrayIdOnly: true, //(default false) to process only the tests that have xrayId like :XRAY-ID:XRAY-123: in the tests name for e.g ':XRAY-ID:XRAY-123: test to validate params'
     }
   });
 };

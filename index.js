@@ -43,10 +43,16 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       jiraProjectKey = process.env.jiraProjectKey
     }
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
+    // log.debug('process.env: \n' + JSON.stringify(process.env));
+
+    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME];
+    if (!buildConfName) {
+      buildConfName = 'Local Run by ' + process.env.USER
+    }
 
     envProperties = {
       BUILD_NUMBER: process.env.buildVersion,
-      TEAMCITY_BUILDCONF_NAME: process.env[TEAMCITY_BUILDCONF_NAME],
+      TEAMCITY_BUILDCONF_NAME: buildConfName,
       BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
       buildVersion: process.env.buildVersion,
       npm_config_globalconfig: process.env.npm_config_globalconfig,
@@ -120,13 +126,16 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
   this.specSuccess = this.specFailure = function (browser, result) {
     let isXray = false,
-      tags = result.description && result.description.split(':', 3),
-      xrayId = '';
-    if (tags && (tags.length > 1)) {
-      xrayId = tags[1];
+      tags = result.description && result.description.split(':', 4),
+      xrayId = '',
+      name = '';
 
-      if (xrayId.indexOf('XRAY') > -1) {
+    if (tags && (tags.length > 1)) {
+      const xrayIdTag = tags[1].trim();
+      if (xrayIdTag.indexOf('XRAY-ID') > -1) {
         isXray = true;
+        xrayId = tags[2];
+        name = tags[3].trim();
       }
     }
 
@@ -136,15 +145,15 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       if (reporterConfig.xrayIdOnly === true) return;
       const NOT_DEFINED = 'Not defined';
       xrayId = NOT_DEFINED;
-      tags = ['', NOT_DEFINED, result.description]
-      // return;
+      tags = ['', NOT_DEFINED, result.description];
+      name = result.description;
     }
 
     log.debug('isXray: ' + isXray + '| XRAY id tag: ' + xrayId);
     const describeValue = result.suite.join(' ').replace(/\./g, '_');
     var spec = suites[browser.id].ele('testcase', {
       requirements: xrayId,
-      name: tags[2].trim(),
+      name: name,
       time: ((result.time || 0) / 1000),
       classname: describeValue
     });

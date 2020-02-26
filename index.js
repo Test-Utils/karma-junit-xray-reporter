@@ -42,7 +42,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     } else if (process.env.jiraProjectKey) {
       jiraProjectKey = process.env.jiraProjectKey
     }
-    log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
+    log.debug('reporterConfig: \n' + JSON.stringify(reporterConfig));
     // log.debug('process.env: \n' + JSON.stringify(process.env));
 
     let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME];
@@ -110,7 +110,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     helper.mkdirIfNotExists(path.dirname(outputFile), function () {
       fs.writeFile(outputFile, xmlToOutput.end({ pretty: true }), function (err) {
         if (err) {
-          log.warn('Cannot write JUnit xml\n\t' + err.message);
+          log.error('Cannot write JUnit xml\n\t' + err.message);
         } else {
           log.debug('JUnit results written to "%s"', outputFile);
         }

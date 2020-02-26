@@ -10,9 +10,9 @@ const path = require('path');
 const builder = require('xmlbuilder');
 
 let fakeLogObject = {
-  debug: noop,
+  debug: sinon.spy(),
   warn: noop,
-  info: noop,
+  info: sinon.spy(),
   error: noop
 }
 // Validation schema is read from a file
@@ -25,7 +25,7 @@ chai.use(require('sinon-chai'))
 function noop() { }
 
 var fakeLogger = {
-  create: () => { return fakeLogObject }
+  create: sinon.spy(() => { return fakeLogObject })
 }
 
 var fakeHelper = {
@@ -183,6 +183,53 @@ describe('JUnit reporter', function () {
     var writtenXml = fakeFs.writeFile.secondCall.args[1]
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
+
+  describe('check log printing', function () {
+    let fakeBrowser = {
+      id: 'Android_4_1_2',
+      name: 'Android',
+      fullName: 'Android 4.1.2',
+      lastResult: {
+        error: false,
+        total: 1,
+        failed: 0,
+        netTime: 10 * 1000
+      }
+    }
+
+    let fakeResult = {
+      suite: [
+        'Sender',
+        'using it',
+        'get request'
+      ],
+      description: 'should not fail',
+      log: []
+    }
+
+    it('on RunStart reporterConfig should be written in log.debug', function () {
+
+      reporter.onRunStart([fakeBrowser])
+      expect(fakeLogObject.debug).to.have.been.called
+      // console.log('Output on debug: ' + fakeLogObject.debug.firstCall.args[0] )
+      const inputArg  = fakeLogObject.debug.firstCall.args[0]
+      expect(inputArg).to.contain('reporterConfig:');
+      expect(inputArg).to.contain('"jiraProjectKey":"CARE"');
+    });
+
+    it('onRunStart: metadata env properties should be written in log.debug', function () {
+
+    });
+
+    it('onRunStart: metadata file should be written in log.info', function () {
+
+    })
+
+    it('onRunComplete when unable to write a file, it should log the error', function() {
+      
+    })
+  });
+
 
   describe('metadata file', function () {
     var fakeChromeBrowser = {

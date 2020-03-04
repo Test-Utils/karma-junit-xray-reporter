@@ -1,13 +1,14 @@
 {
   "name": "karma-junit-xray-reporter",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "A Karma plugin. Report results in junit xml format with XRay Id(if present)",
   "main": "index.js",
   "files": [
     "index.js"
   ],
   "scripts": {
-    "test": "grunt"
+    "test": "grunt",
+    "cover": "nyc --reporter=text mocha tests/reporter.spec.js"
   },
   "repository": {
     "type": "git",
@@ -48,6 +49,7 @@
     "libxmljs": "^0.19.5",
     "load-grunt-tasks": "^3.2.0",
     "mocha": "^3.2.0",
+    "nyc": "^15.0.0",
     "proxyquire": "^1.7.4",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0"

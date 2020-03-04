@@ -28,6 +28,11 @@ If you want to skip eslinter and directly run just tests
 ```bash
 mocha tests/reporter.spec.js
 ```
+## Run Tests with coverage
+Run tests with coverage
+```bash
+npm run test-with-coverage
+```
 
 ## Configuration
 

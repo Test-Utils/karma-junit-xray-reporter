@@ -145,7 +145,6 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       if (reporterConfig.xrayIdOnly === true) return;
       const NOT_DEFINED = 'Not defined';
       xrayId = NOT_DEFINED;
-      tags = ['', NOT_DEFINED, result.description];
       name = result.description;
     }
 

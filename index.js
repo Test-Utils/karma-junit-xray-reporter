@@ -2,13 +2,16 @@ var os = require('os');
 var path = require('path');
 var fs = require('fs');
 var builder = require('xmlbuilder');
+let outputFile;
 
 var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper, formatError) {
   var log = logger.create('reporter.junitxray');
   var reporterConfig = config.junitXrayReporter || {};
   var pkgName = reporterConfig.suite || '';
-  var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile ||
-     'test-results.xml'));
+
+  outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile ||
+     'test-results' + (new Date().toISOString().replace(/:|\./g, '_')) + '.xml'));
+
   let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.metadataFile ||
      'metadata.json'));
 
@@ -176,7 +179,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
 JUnitXrayReporter.$inject = ['baseReporterDecorator', 'config', 'logger', 'helper', 'formatError'];
 
-// PUBLISH DI MODULE
+// PUBLISH MODULE
 module.exports = {
   'reporter:junitxray': ['type', JUnitXrayReporter]
 };

@@ -17,7 +17,7 @@ let fakeLogObject = {
 }
 // Validation schema is read from a file
 var schemaPath = './sonar-unit-tests.xsd'
-const testReportsPath = path.join(__dirname, '../_test-reports/');
+const testReportsPath = '_test-reports/';
 console.log('TEST REPORTS PATH: ' + testReportsPath);
 
 chai.use(require('sinon-chai'))
@@ -29,7 +29,7 @@ var fakeLogger = {
 }
 
 var fakeHelper = {
-  normalizeWinPath: noop,
+  normalizeWinPath: (input) => {return input},
   mkdirIfNotExists: sinon.stub().yields()
 }
 
@@ -39,7 +39,10 @@ var fakeConfig = {
   basePath: __dirname,
   junitXrayReporter: {
     outputFile: path.normalize(
-      path.join(testReportsPath, 'component-test-results/component_tests.xml')
+      path.join(testReportsPath, 
+        'component-test-results/component_tests_' + 
+        new Date().toISOString().replace(/\:|\./g, '_') + 
+        '.xml')
     ),
     suite: '',
     jiraProjectKey: 'CARE'
@@ -65,7 +68,7 @@ describe('JUnit reporter', function () {
       writeFileSync: sinon.spy()
     }
     fakePath = {
-      resolve: noop,
+      resolve: (input1,input2) => { return (input1 + input2) },
       dirname: noop
     }
 
@@ -183,6 +186,45 @@ describe('JUnit reporter', function () {
     var writtenXml = fakeFs.writeFile.secondCall.args[1]
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail"')
   })
+
+  it('should create output file with a unique name by adding timestamp to the name', function () {
+    var fakeBrowser = {
+      id: 'Android_4_1_2',
+      name: 'Android',
+      fullName: 'Android 4.1.2',
+      lastResult: {
+        error: false,
+        total: 1,
+        failed: 0,
+        netTime: 10 * 1000
+      }
+    }
+
+    var fakeResult = {
+      suite: [
+        'Sender',
+        'using it',
+        'get request'
+      ],
+      description: 'should not fail',
+      log: []
+    }
+
+    reporter.onRunStart([fakeBrowser])
+    reporter.onBrowserStart(fakeBrowser)
+    reporter.specSuccess(fakeBrowser, fakeResult)
+    reporter.onBrowserComplete(fakeBrowser)
+    reporter.onRunComplete()
+
+    expect(fakeFs.writeFile).to.have.been.called
+
+    let fileName = fakeFs.writeFile.secondCall.args[0]; 
+    console.debug('fileName: ' + fileName);
+    const expectedPath = fakeConfig.basePath + fakeConfig.junitXrayReporter.outputFile
+    expect(fileName).to.equal(expectedPath);   
+
+  })
+
 
   describe('metadata file', function () {
     var fakeChromeBrowser = {

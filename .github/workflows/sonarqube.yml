@@ -2,7 +2,7 @@ on:
   push:
     branches:
       branch_sonar_cloud_integ
-      # Currently setting it just for this branch because github has already sonarqube analysis 
+      # Currently setting it just for this branch because this github repo has already sonarqube analysis 
       # enabled that seem to have a better interface 
 name: Sonarqube Workflow
 jobs:

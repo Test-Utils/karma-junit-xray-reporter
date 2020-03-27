@@ -184,8 +184,8 @@ describe('JUnit reporter', function () {
 
     let fileName = fakeFs.writeFile.secondCall.args[0];
     console.debug('fileName: ' + fileName);
-    const expectedPath = fakeConfig.basePath + fakeConfig.junitXrayReporter.outputFile
-    expect(fileName).to.equal(expectedPath);
+    const expectedUniqueFileName = fakeConfig.basePath + fakeConfig.junitXrayReporter.outputFile
+    expect(fileName).to.equal(expectedUniqueFileName);
   })
 
   describe('metadata file', function () {

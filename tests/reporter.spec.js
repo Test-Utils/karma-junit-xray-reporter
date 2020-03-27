@@ -29,7 +29,7 @@ var fakeLogger = {
 }
 
 var fakeHelper = {
-  normalizeWinPath: (input) => {return input},
+  normalizeWinPath: (input) => { return input },
   mkdirIfNotExists: sinon.stub().yields()
 }
 
@@ -39,9 +39,9 @@ var fakeConfig = {
   basePath: __dirname,
   junitXrayReporter: {
     outputFile: path.normalize(
-      path.join(testReportsPath, 
-        'component-test-results/component_tests_' + 
-        new Date().toISOString().replace(/\:|\./g, '_') + 
+      path.join(testReportsPath,
+        'component-test-results/component_tests_' +
+        new Date().toISOString().replace(/:|\./g, '_') +
         '.xml')
     ),
     suite: '',
@@ -62,13 +62,25 @@ describe('JUnit reporter', function () {
   var fakeFs
   var fakePath
 
+  var fakeBrowser = {
+    id: 'Android_4_1_2',
+    name: 'Android',
+    fullName: 'Android 4.1.2',
+    lastResult: {
+      error: false,
+      total: 1,
+      failed: 0,
+      netTime: 10 * 1000
+    }
+  }
+
   beforeEach(function () {
     fakeFs = {
       writeFile: sinon.spy(),
       writeFileSync: sinon.spy()
     }
     fakePath = {
-      resolve: (input1,input2) => { return (input1 + input2) },
+      resolve: (input1, input2) => { return (input1 + input2) },
       dirname: noop
     }
 
@@ -87,17 +99,6 @@ describe('JUnit reporter', function () {
     // Two differences in this test, compared to other tests:
     // a) we have a different configuration for the reporter
     // b) need a instantiation of the reporter - the beforeEach doesn't work since it is for old XML
-    var fakeBrowser = {
-      id: 'Android_4_1_2',
-      name: 'Android',
-      fullName: 'Android 4.1.2',
-      lastResult: {
-        error: false,
-        total: 1,
-        failed: 0,
-        netTime: 10 * 1000
-      }
-    }
     // Static result, since we don't actually produce the result through Karma
     var fakeResult = {
       suite: [
@@ -153,18 +154,6 @@ describe('JUnit reporter', function () {
   })
 
   it('should include parent suite names in generated test names', function () {
-    var fakeBrowser = {
-      id: 'Android_4_1_2',
-      name: 'Android',
-      fullName: 'Android 4.1.2',
-      lastResult: {
-        error: false,
-        total: 1,
-        failed: 0,
-        netTime: 10 * 1000
-      }
-    }
-
     var fakeResult = {
       suite: [
         'Sender',
@@ -188,43 +177,16 @@ describe('JUnit reporter', function () {
   })
 
   it('should create output file with a unique name by adding timestamp to the name', function () {
-    var fakeBrowser = {
-      id: 'Android_4_1_2',
-      name: 'Android',
-      fullName: 'Android 4.1.2',
-      lastResult: {
-        error: false,
-        total: 1,
-        failed: 0,
-        netTime: 10 * 1000
-      }
-    }
-
-    var fakeResult = {
-      suite: [
-        'Sender',
-        'using it',
-        'get request'
-      ],
-      description: 'should not fail',
-      log: []
-    }
-
     reporter.onRunStart([fakeBrowser])
-    reporter.onBrowserStart(fakeBrowser)
-    reporter.specSuccess(fakeBrowser, fakeResult)
-    reporter.onBrowserComplete(fakeBrowser)
     reporter.onRunComplete()
 
     expect(fakeFs.writeFile).to.have.been.called
 
-    let fileName = fakeFs.writeFile.secondCall.args[0]; 
+    let fileName = fakeFs.writeFile.secondCall.args[0];
     console.debug('fileName: ' + fileName);
     const expectedPath = fakeConfig.basePath + fakeConfig.junitXrayReporter.outputFile
-    expect(fileName).to.equal(expectedPath);   
-
+    expect(fileName).to.equal(expectedPath);
   })
-
 
   describe('metadata file', function () {
     var fakeChromeBrowser = {

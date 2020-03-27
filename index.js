@@ -8,10 +8,10 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   var log = logger.create('reporter.junitxray');
   var reporterConfig = config.junitXrayReporter || {};
   var pkgName = reporterConfig.suite || '';
-  
+
   outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile ||
      'test-results' + (new Date().toISOString().replace(/:|\./g, '_')) + '.xml'));
-     
+
   let metadataFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.metadataFile ||
      'metadata.json'));
 

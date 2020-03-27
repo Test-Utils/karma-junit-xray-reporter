@@ -246,18 +246,6 @@ describe('JUnit reporter', function () {
   });
 
   it('should safely handle special characters', function () {
-    var fakeBrowser = {
-      id: 'Android_4_1_2',
-      name: 'Android',
-      fullName: 'Android 4.1.2',
-      lastResult: {
-        error: false,
-        total: 1,
-        failed: 1,
-        netTime: 10 * 1000
-      }
-    }
-
     var fakeResult = {
       suite: [
         'Sender',
@@ -299,18 +287,6 @@ describe('JUnit reporter', function () {
   })
 
   it('should safely handle test re-runs triggered by watchers', function () {
-    var fakeBrowser = {
-      id: 'Android_4_1_2',
-      name: 'Android',
-      fullName: 'Android 4.1.2',
-      lastResult: {
-        error: false,
-        total: 1,
-        failed: 0,
-        netTime: 10 * 1000
-      }
-    }
-
     reporter.onRunStart([fakeBrowser])
     reporter.onBrowserStart(fakeBrowser)
 

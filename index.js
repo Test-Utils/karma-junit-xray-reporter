@@ -37,7 +37,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
     const TEAMCITY_BUILDCONF_NAME = 'TEAMCITY_BUILDCONF_NAME';
-
+    let envFields = ['BUILD_VCS_NUMBER', 'JAVA_HOME', 'JRE_HOME', 'LANG', 'LOGNAME', 'NODE_PATH', 'NVM_BIN', 'NVM_PATH', 
+                    'SHELL', 'TEAMCITY_BUILD_PROPERTIES_FILE', 'TEAMCITY_GIT_PATH', 'TEAMCITY_PROCESS_FLOW_ID', 
+                    'TEAMCITY_PROJECT_NAME', 'TEAMCITY_VERSION', 'XDG_SESSION_ID'];
     let jiraProjectKey = '',
         envProperties;
     if (process.env.jiraProjectKey) {
@@ -56,7 +58,6 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     envProperties = {
       BUILD_NUMBER: process.env.BUILD_NUMBER,
       TEAMCITY_BUILDCONF_NAME: buildConfName,
-      BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
       buildVersion: process.env.BUILD_NUMBER,
       npm_config_globalconfig: process.env.npm_config_globalconfig,
       npm_config_node_version: process.env.npm_config_node_version,
@@ -65,11 +66,10 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter
     }
 
-    log.debug('PRINTING VALUES with hasOwnProperty filter');
     for (let key in process.env) {
-      if (process.env.hasOwnProperty(key)) {
-        log.debug(`${key}: ${process.env[key]}`); 
-      }
+        if(envFields.includes(key)) {
+          envProperties[key] = process.env[key];
+        } 
     }
 
     log.debug('envProperties: \n' + JSON.stringify(envProperties));

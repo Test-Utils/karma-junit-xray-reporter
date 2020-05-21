@@ -40,11 +40,11 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
     let jiraProjectKey = '',
         envProperties;
-    if (reporterConfig.jiraProjectKey) {
-      jiraProjectKey = reporterConfig.jiraProjectKey;
-    } else if (process.env.jiraProjectKey) {
+    if (process.env.jiraProjectKey) {
       jiraProjectKey = process.env.jiraProjectKey
-    }
+    } else if (reporterConfig.jiraProjectKey) {
+      jiraProjectKey = reporterConfig.jiraProjectKey;
+    }  
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
     // log.debug('process.env: \n' + JSON.stringify(process.env));
 
@@ -64,6 +64,14 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       npm_package_dependencies_karma_webpack: process.env.npm_package_dependencies_karma_webpack,
       npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter
     }
+
+    log.debug('PRINTING VALUES with hasOwnProperty filter');
+    for (let key in process.env) {
+      if (process.env.hasOwnProperty(key)) {
+        log.debug(`${key}: ${process.env[key]}`); 
+      }
+    }
+
     log.debug('envProperties: \n' + JSON.stringify(envProperties));
 
     let metadata = {

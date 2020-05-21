@@ -54,10 +54,10 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     }
 
     envProperties = {
-      BUILD_NUMBER: process.env.buildVersion,
+      BUILD_NUMBER: process.env.BUILD_NUMBER,
       TEAMCITY_BUILDCONF_NAME: buildConfName,
       BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
-      buildVersion: process.env.buildVersion,
+      buildVersion: process.env.BUILD_NUMBER,
       npm_config_globalconfig: process.env.npm_config_globalconfig,
       npm_config_node_version: process.env.npm_config_node_version,
       npm_package_name: process.env.npm_package_name,

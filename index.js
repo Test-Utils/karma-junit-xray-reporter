@@ -2,6 +2,7 @@ var os = require('os');
 var path = require('path');
 var fs = require('fs');
 var builder = require('xmlbuilder');
+const tcSystemProps = require('teamcity-properties');
 let outputFile;
 
 var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper, formatError) {
@@ -55,7 +56,8 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       buildConfName = 'Local Run by ' + process.env.USER
     }
 
-    log.debug('teamcity.system: ' + JSON.stringify(process.systeme));
+    log.debug('teamcity.system: \n' + JSON.stringify(process.system));
+    log.debug('teamcity.system via teamcity-properties: \n' + JSON.stringify(tcSystemProps))
 
     envProperties = {
       BUILD_NUMBER: process.env.BUILD_NUMBER,

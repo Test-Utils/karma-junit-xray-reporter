@@ -50,8 +50,11 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
     // log.debug('process.env: \n' + JSON.stringify(process.env));
 
-    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME],
-        buildNumber = trim(process.env.BUILD_NUMBER);
+    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME];
+
+    if (buildNumber) {
+      buildNumber = buildNumber.trim();
+    }
     if (!buildConfName) {
       buildConfName = 'Local Run by ' + process.env.USER;
     }

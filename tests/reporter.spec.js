@@ -225,7 +225,7 @@ describe('JUnit reporter', function () {
       // debugger;
       console.debug('metadata: ' + JSON.stringify(metadata));
       expect(metadata.jiraProjectKey).to.have.string('CARE');
-      expect(metadata.envProperties.buildVersion).to.have.string(process.env.buildVersion);
+      expect(metadata.envProperties.buildCounter).to.have.string(process.env.buildVersion);
       process.env.buildVersion = undefined;
     });
 
@@ -241,7 +241,7 @@ describe('JUnit reporter', function () {
 
       var metadata = JSON.parse(fakeFs.writeFile.firstCall.args[1])
       expect(metadata.jiraProjectKey).to.have.string('CARE');
-      expect(metadata.envProperties.buildVersion).to.have.string('undefined');
+      expect(metadata.envProperties.buildCounter).to.have.string('undefined');
     });
   });
 

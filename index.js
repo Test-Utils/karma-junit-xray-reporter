@@ -2,7 +2,6 @@ var os = require('os');
 var path = require('path');
 var fs = require('fs');
 var builder = require('xmlbuilder');
-const tcSystemProps = require('teamcity-properties');
 let outputFile;
 
 var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper, formatError) {
@@ -51,19 +50,24 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
     // log.debug('process.env: \n' + JSON.stringify(process.env));
 
-    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME];
+    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME],
+        buildNumber = trim(process.env.BUILD_NUMBER);
     if (!buildConfName) {
-      buildConfName = 'Local Run by ' + process.env.USER
+      buildConfName = 'Local Run by ' + process.env.USER;
     }
 
-    log.debug('getting direct process.branch_name:	' + process.branch_name);
-    // log.debug('teamcity.system: \n' + JSON.stringify(process.system));
-    log.debug('tc process: \n' + JSON.stringify(process))
+    buildConfName += `- branch: ${process.env.branchName}`;
+
+    if (buildNumber === 'TBD') {
+      buildConfName += ` - buildCounter: ${process.env.buildVersion}`;
+      buildNumber = 'TC Build Number: ' + buildNumber;       
+    }
 
     envProperties = {
-      BUILD_NUMBER: process.env.BUILD_NUMBER,
+      BRANCH_NAME: process.env.branchName,
+      BUILD_NUMBER: buildNumber,
       TEAMCITY_BUILDCONF_NAME: buildConfName,
-      autoBuildVersion: process.env.buildVersion,
+      buildCounter: process.env.buildVersion,
       npm_config_globalconfig: process.env.npm_config_globalconfig,
       npm_config_node_version: process.env.npm_config_node_version,
       npm_package_name: process.env.npm_package_name,

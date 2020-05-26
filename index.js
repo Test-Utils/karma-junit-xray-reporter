@@ -50,7 +50,8 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
     // log.debug('process.env: \n' + JSON.stringify(process.env));
 
-    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME];
+    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME],
+        buildNumber = process.env.BUILD_NUMBER;
 
     if (buildNumber) {
       buildNumber = buildNumber.trim();

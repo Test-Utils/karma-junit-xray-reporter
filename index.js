@@ -56,8 +56,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       buildConfName = 'Local Run by ' + process.env.USER
     }
 
-    log.debug('teamcity.system: \n' + JSON.stringify(process.system));
-    log.debug('teamcity.system via teamcity-properties: \n' + JSON.stringify(tcSystemProps))
+    log.debug('getting direct process.branch_name:	' + process.branch_name);
+    // log.debug('teamcity.system: \n' + JSON.stringify(process.system));
+    log.debug('tc process: \n' + JSON.stringify(process))
 
     envProperties = {
       BUILD_NUMBER: process.env.BUILD_NUMBER,

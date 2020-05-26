@@ -55,10 +55,12 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       buildConfName = 'Local Run by ' + process.env.USER
     }
 
+    log.debug('teamcity.system: ' + JSON.stringify(process.systeme));
+
     envProperties = {
       BUILD_NUMBER: process.env.BUILD_NUMBER,
       TEAMCITY_BUILDCONF_NAME: buildConfName,
-      buildVersion: process.env.BUILD_NUMBER,
+      autoBuildVersion: process.env.buildVersion,
       npm_config_globalconfig: process.env.npm_config_globalconfig,
       npm_config_node_version: process.env.npm_config_node_version,
       npm_package_name: process.env.npm_package_name,

@@ -37,33 +37,53 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
     const TEAMCITY_BUILDCONF_NAME = 'TEAMCITY_BUILDCONF_NAME';
-
+    let envFields = ['BUILD_VCS_NUMBER', 'JAVA_HOME', 'JRE_HOME', 'LANG', 'LOGNAME', 'NODE_PATH', 'NVM_BIN', 'NVM_PATH', 
+                    'SHELL', 'TEAMCITY_BUILD_PROPERTIES_FILE', 'TEAMCITY_GIT_PATH', 'TEAMCITY_PROCESS_FLOW_ID', 
+                    'TEAMCITY_PROJECT_NAME', 'TEAMCITY_VERSION', 'XDG_SESSION_ID'];
     let jiraProjectKey = '',
         envProperties;
-    if (reporterConfig.jiraProjectKey) {
-      jiraProjectKey = reporterConfig.jiraProjectKey;
-    } else if (process.env.jiraProjectKey) {
+    if (process.env.jiraProjectKey) {
       jiraProjectKey = process.env.jiraProjectKey
-    }
+    } else if (reporterConfig.jiraProjectKey) {
+      jiraProjectKey = reporterConfig.jiraProjectKey;
+    }  
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
-    // log.debug('process.env: \n' + JSON.stringify(process.env));
 
-    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME];
+    let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME],
+        buildNumber = process.env.BUILD_NUMBER;
+
+    if (buildNumber) {
+      buildNumber = buildNumber.trim();
+    }
     if (!buildConfName) {
-      buildConfName = 'Local Run by ' + process.env.USER
+      buildConfName = 'Local Run by ' + process.env.USER;
+    }
+
+    buildConfName += `- branch: ${process.env.branchName}`;
+
+    if (buildNumber === 'TBD') {
+      buildConfName += ` - buildCounter: ${process.env.buildVersion}`;
+      buildNumber = 'TC Build Number: ' + buildNumber;       
     }
 
     envProperties = {
-      BUILD_NUMBER: process.env.buildVersion,
+      BRANCH_NAME: process.env.branchName,
+      BUILD_NUMBER: buildNumber,
       TEAMCITY_BUILDCONF_NAME: buildConfName,
-      BUILD_VCS_NUMBER: process.env.BUILD_VCS_NUMBER,
-      buildVersion: process.env.buildVersion,
+      buildCounter: process.env.buildVersion,
       npm_config_globalconfig: process.env.npm_config_globalconfig,
       npm_config_node_version: process.env.npm_config_node_version,
       npm_package_name: process.env.npm_package_name,
       npm_package_dependencies_karma_webpack: process.env.npm_package_dependencies_karma_webpack,
       npm_package_devDependencies_karma_junit_xray_reporter: process.env.npm_package_devDependencies_karma_junit_xray_reporter
     }
+
+    for (let key in process.env) {
+        if(envFields.includes(key)) {
+          envProperties[key] = process.env[key];
+        } 
+    }
+
     log.debug('envProperties: \n' + JSON.stringify(envProperties));
 
     let metadata = {

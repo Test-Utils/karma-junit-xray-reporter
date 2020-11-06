@@ -1,6 +1,6 @@
 {
   "name": "karma-junit-xray-reporter",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "A Karma plugin. Report results in junit xml format with XRay Id(if present)",
   "main": "index.js",
   "files": [
@@ -47,17 +47,18 @@
     "grunt-eslint": "^18.1.0",
     "grunt-npm": "^0.0.2",
     "grunt-simple-mocha": "^0.4.1",
-    "libxmljs": "^0.19.5",
     "load-grunt-tasks": "^3.2.0",
     "mocha": "^3.2.0",
     "nyc": "^15.0.0",
     "proxyquire": "^1.7.4",
     "sinon": "^1.17.3",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^2.8.0",
+    "fast-xml-parser": "^3.17.4"
   },
   "contributors": [
     "All contributors in karma-junit-reporter since we took code from there and modified to create this package",
-    "Arsalan Siddiqui <robotics1@gmail.com>",
-    "James Landy <james.james.landy@philips.com>"
+    "Arsalan Siddiqui <arsalan.siddiqui@philips.com>",
+    "James Landy <james.landy@philips.com>",
+    "Stephanie Gawroriski <stephanie.gawroriski@philips.com>"
   ]
 }

@@ -10,7 +10,7 @@
 The easiest way is to keep `karma-junit-xray-reporter` as a devDependency in your `package.json` pointing to its current repo 
 
 ```bash
-"karma-junit-xray-reporter": "git+https://scm.sapphirepri.com/arsalan.siddiqui/karma-junit-xray-reporter.git"
+"karma-junit-xray-reporter": "git+https://github.com/Test-Utils/karma-junit-xray-reporter.git"
 ```
 
 To update to the latest version

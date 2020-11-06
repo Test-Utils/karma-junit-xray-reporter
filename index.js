@@ -37,8 +37,8 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
     const TEAMCITY_BUILDCONF_NAME = 'TEAMCITY_BUILDCONF_NAME';
-    let envFields = ['BUILD_VCS_NUMBER', 'JAVA_HOME', 'JRE_HOME', 'LANG', 'LOGNAME', 'NODE_PATH', 'NVM_BIN', 'NVM_PATH', 
-                    'SHELL', 'TEAMCITY_BUILD_PROPERTIES_FILE', 'TEAMCITY_GIT_PATH', 'TEAMCITY_PROCESS_FLOW_ID', 
+    let envFields = ['BUILD_VCS_NUMBER', 'JAVA_HOME', 'JRE_HOME', 'LANG', 'LOGNAME', 'NODE_PATH', 'NVM_BIN', 'NVM_PATH',
+                    'SHELL', 'TEAMCITY_BUILD_PROPERTIES_FILE', 'TEAMCITY_GIT_PATH', 'TEAMCITY_PROCESS_FLOW_ID',
                     'TEAMCITY_PROJECT_NAME', 'TEAMCITY_VERSION', 'XDG_SESSION_ID'];
     let jiraProjectKey = '',
         envProperties;
@@ -46,7 +46,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       jiraProjectKey = process.env.jiraProjectKey
     } else if (reporterConfig.jiraProjectKey) {
       jiraProjectKey = reporterConfig.jiraProjectKey;
-    }  
+    }
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
 
     let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME],
@@ -63,7 +63,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
     if (buildNumber === 'TBD') {
       buildConfName += ` - buildCounter: ${process.env.buildVersion}`;
-      buildNumber = 'TC Build Number: ' + buildNumber;       
+      buildNumber = 'TC Build Number: ' + buildNumber;
     }
 
     envProperties = {
@@ -79,9 +79,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     }
 
     for (let key in process.env) {
-        if(envFields.includes(key)) {
+        if (envFields.includes(key)) {
           envProperties[key] = process.env[key];
-        } 
+        }
     }
 
     log.debug('envProperties: \n' + JSON.stringify(envProperties));

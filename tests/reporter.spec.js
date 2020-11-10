@@ -4,10 +4,9 @@ const chai = require('chai');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
-const fs = require('fs');
-const libxmljs = require('libxmljs');
 const path = require('path');
 const builder = require('xmlbuilder');
+const fastXmlParser = require('fast-xml-parser');
 
 let fakeLogObject = {
   debug: noop,
@@ -15,8 +14,8 @@ let fakeLogObject = {
   info: noop,
   error: noop
 };
+
 // Validation schema is read from a file
-const schemaPath = './sonar-unit-tests.xsd';
 const testReportsPath = '_test-reports/';
 console.log('TEST REPORTS PATH: ' + testReportsPath);
 
@@ -115,6 +114,7 @@ describe('JUnit reporter', function () {
       description: 'should not fail',
       log: []
     };
+
     // Requesting test for NEW xml format. Do not recycle the config used by OTHER tests,
     // since this would ruin them. Remember: since tests can run in undefined order, the side
     // effects (like configuration) must be carefully considered. beforeEach() caters for other tests
@@ -129,6 +129,7 @@ describe('JUnit reporter', function () {
         xmlVersion: 1
       }
     };
+
     // Grab a new reporter, configured with xmlVersion flag
     const nxreporter = new reporterModule['reporter:junitxray'][1](fakeBaseReporterDecorator, newFakeConfig, fakeLogger, fakeHelper);
     nxreporter.onRunStart([fakeBrowser]);
@@ -138,25 +139,34 @@ describe('JUnit reporter', function () {
     nxreporter.onRunComplete();
 
     const writtenXml = fakeFs.writeFile.secondCall.args[1];
+    const parsedXml = fastXmlParser.parse(writtenXml, {ignoreAttributes: false, parseAttributeValue: true, attributeNamePrefix: '__'});
 
-    const xsdString = fs.readFileSync(schemaPath);
-    const xsdDoc = libxmljs.parseXml(xsdString);
-    const xmlDoc = libxmljs.parseXml(writtenXml);
+    expect(fastXmlParser.validate(writtenXml)).to.be.true;
 
-    xmlDoc.validate(xsdDoc);
+    expect(parsedXml.testsuites).to.exist;
 
-    const xsdParseErrorCount = xsdDoc.errors.length;
-    const xmlParseErrorCount = xmlDoc.errors.length;
-    const validationErrorCount = xmlDoc.validationErrors.length;
+    expect(parsedXml.testsuites.testsuite).to.exist;
+    expect(parsedXml.testsuites.testsuite.__name).to.exist;
+    expect(parsedXml.testsuites.testsuite.__package).to.exist;
+    expect(parsedXml.testsuites.testsuite.__timestamp).to.exist;
+    expect(parsedXml.testsuites.testsuite.__hostname).to.exist;
+
+    expect(parsedXml.testsuites.testsuite.__id).to.equal(0);
+    expect(parsedXml.testsuites.testsuite.__tests).to.equal(1);
+    expect(parsedXml.testsuites.testsuite.__errors).to.equal(0);
+    expect(parsedXml.testsuites.testsuite.__failures).to.equal(0);
+
+    expect(parsedXml.testsuites.testsuite.testcase).to.exist;
+    expect(parsedXml.testsuites.testsuite.testcase.__time).to.exist;
+
+    expect(parsedXml.testsuites.testsuite.testcase.__requirements).to.equal('Not defined');
+    expect(parsedXml.testsuites.testsuite.testcase.__name).to.equal('should not fail');
+    expect(parsedXml.testsuites.testsuite.testcase.__classname).to.equal('Sender using it get request');
 
     // The 2 tests below are "static", weak tests that find whether a
     // string is present in the XML report
     expect(writtenXml).to.have.string('<testcase requirements="Not defined" name="should not fail" time="0" classname="Sender using it get request"/>');
     expect(writtenXml).to.have.string('testsuite name="Android"');
-    // The below is the strict, libxml-xsd -based validation result
-    expect(validationErrorCount).to.equal(1);
-    expect(xsdParseErrorCount).to.equal(0);
-    expect(xmlParseErrorCount).to.equal(0)
   });
 
   it('should include parent suite names in generated test names', function () {

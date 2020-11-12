@@ -4,6 +4,8 @@ var fs = require('fs');
 var builder = require('xmlbuilder');
 let outputFile;
 
+let common = require('./common.js');
+
 var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper, formatError) {
   var log = logger.create('reporter.junitxray');
   var reporterConfig = config.junitXrayReporter || {};
@@ -37,8 +39,8 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   this.onRunStart = function (browsers) {
     // Create metadata file and write it on the disk
     const TEAMCITY_BUILDCONF_NAME = 'TEAMCITY_BUILDCONF_NAME';
-    let envFields = ['BUILD_VCS_NUMBER', 'JAVA_HOME', 'JRE_HOME', 'LANG', 'LOGNAME', 'NODE_PATH', 'NVM_BIN', 'NVM_PATH', 
-                    'SHELL', 'TEAMCITY_BUILD_PROPERTIES_FILE', 'TEAMCITY_GIT_PATH', 'TEAMCITY_PROCESS_FLOW_ID', 
+    let envFields = ['BUILD_VCS_NUMBER', 'JAVA_HOME', 'JRE_HOME', 'LANG', 'LOGNAME', 'NODE_PATH', 'NVM_BIN', 'NVM_PATH',
+                    'SHELL', 'TEAMCITY_BUILD_PROPERTIES_FILE', 'TEAMCITY_GIT_PATH', 'TEAMCITY_PROCESS_FLOW_ID',
                     'TEAMCITY_PROJECT_NAME', 'TEAMCITY_VERSION', 'XDG_SESSION_ID'];
     let jiraProjectKey = '',
         envProperties;
@@ -46,7 +48,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
       jiraProjectKey = process.env.jiraProjectKey
     } else if (reporterConfig.jiraProjectKey) {
       jiraProjectKey = reporterConfig.jiraProjectKey;
-    }  
+    }
     log.debug('reporterConfig: ' + JSON.stringify(reporterConfig));
 
     let buildConfName = process.env[TEAMCITY_BUILDCONF_NAME],
@@ -63,7 +65,7 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
 
     if (buildNumber === 'TBD') {
       buildConfName += ` - buildCounter: ${process.env.buildVersion}`;
-      buildNumber = 'TC Build Number: ' + buildNumber;       
+      buildNumber = 'TC Build Number: ' + buildNumber;
     }
 
     envProperties = {
@@ -79,9 +81,9 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
     }
 
     for (let key in process.env) {
-        if(envFields.includes(key)) {
+        if (envFields.includes(key)) {
           envProperties[key] = process.env[key];
-        } 
+        }
     }
 
     log.debug('envProperties: \n' + JSON.stringify(envProperties));
@@ -148,19 +150,11 @@ var JUnitXrayReporter = function (baseReporterDecorator, config, logger, helper,
   };
 
   this.specSuccess = this.specFailure = function (browser, result) {
-    let isXray = false,
-      tags = result.description && result.description.split(':', 4),
-      xrayId = '',
-      name = '';
+    let xRayInfo = common.findXrayIdAndName(result.description, true);
 
-    if (tags && (tags.length > 1)) {
-      const xrayIdTag = tags[1].trim();
-      if (xrayIdTag.indexOf('XRAY-ID') > -1) {
-        isXray = true;
-        xrayId = tags[2];
-        name = tags[3].trim();
-      }
-    }
+    let isXray = (xRayInfo.xrayId !== undefined);
+    let name = xRayInfo.name;
+    let xrayId = xRayInfo.xrayId;
 
     // Component tests are being identified by xrayId tag (e.g XRAY-123) present in the desc
     // If the tag is not found then no processing needed

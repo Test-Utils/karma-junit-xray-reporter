@@ -1,2 +1,2 @@
-- Arsalan Siddiqui <robotics1@gmail.com>
-- James Landy <<James.Landy@philips.com>>
+Arsalan Siddiqui <arsalan.siddiqui@philips.com>
+Stephanie Gawroriski <stephanie.gawroriski@philips.com>

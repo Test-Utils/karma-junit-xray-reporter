@@ -1,3 +1,5 @@
+DEPRECATED 
+
 # karma-junit-xray-reporter
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://scm.sapphirepri.com/arsalan.siddiqui/karma-junit-xray-reporter.git)
